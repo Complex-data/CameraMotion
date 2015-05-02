@@ -70,10 +70,7 @@ x = mod(pos, n);
 y = round(pos/n)+1;
 
 % scatter(x,y)
-% plot(x(1), y(1), 'bo');
-% plot(x, y, 'bo');
-
-
+plot(x(1), y(1), 'bo');
 
 % ind = x*width + y
 

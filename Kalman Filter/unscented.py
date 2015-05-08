@@ -4,11 +4,20 @@ import kalman
 
 T = 0.01 # sampling step
 
+# Expects row vectors
+def system_func(x, v):
+	return x + np.array([x[3]*np.cos(x[2])*T, x[3]*np.sin(x[2])*T, 0, 0]) + np.array([0, v[0], 0, v[1]])
+
+def meas_func(x, n):
+	return np.array([x[0], x[2]])
+
 x = np.arange(0, 10, 0.01)
 y = np.concatenate((np.ones(499), np.linspace(1, 0, 501)))
 
 Y = np.vstack((x, y))
 Z = Y + 0.1*np.random.standard_normal(Y.shape)
+
+
 
 A = np.array([[1, T, 0, 0], [0, 1, 0, 0], [0, 0, 1, T], [0, 0, 0, 1]])
 C = np.array([[1, 0, 0, 0], [0, 0, 1, 0]])

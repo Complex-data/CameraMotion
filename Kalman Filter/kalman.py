@@ -32,11 +32,55 @@ def linear_filter(Z, A, C, Q, R, initial_state = None, initial_cov = None):
 	
 	return Xfilt, P
 
-def unscented_filter(initial_state = None, initial_cov = None):
+def unscented_filter(system_func, meas_func, meas, system_order, system_noise_order, meas_noise_order, alpha = None, beta = None, kappa = None, initial_state = None, initial_system_cov = None, initial_system_noise_cov = None, initial_meas_noise_cov = None):
+	# Set default parameter values
+	if alpha is None:
+		alpha = 1
+
+	if beta is None:
+		beta = 2
+
+	if kappa = None:
+		kappa = 0
+
 	if initial_state is None:
-		initial_state = np.zeros(n) # Default initial states
+		initial_state = np.zeros(system_oder) # Default initial states
 
-	if initial_cov is None:
-		initial_cov = np.eye(n) # Default initial covariance
+	if initial_system_cov is None:
+		initial_cov = np.eye(system_oder) # Default initial covariance
 
+	if initial_system_noise_cov is None:
+		system_noise_order = 2
+		initial_system_noise_cov = 0.0001*np.eye(2)
+
+	if initial_meas_noise_cov is None:
+		meas_noise_order = 2
+		initial_meas_noise_cov = np.eye(2)
+
+	(p, N) = meas.shape # N = number of new measurements
+
+	total_order = system_order + system_noise_order + meas_noise_order
+	lam = alpha*alpha*(total_order + kappa) - total_order
+
+	# Kalman predicted state
+	Xpred = np.zeros((total_order, 1))
+	# Sigma points for the unscented transform
+	sigma_points = np.zeros((total_order, 2*total_order + 1)) 
+	# Kalman filtered state
+	Xfilt = np.zeros((total_order, N + 1))
+
+	# Initialise
+	Xfilt[:, 0] = initial_state
+	P = initial_system_cov
+	Xaug = np.concatenate((Xfilt[:, 0], np.zeros(system_noise_order + meas_noise_order)))
+	Paug = np.zeros((total_order, total_order))
+
+	# Construct initial augmented covariance matrix
+	Paug[0:system_order, 0:system_order] = P
+	Paug[system_order:(system_oder + system_noise_order), system_order:(system_oder + system_noise_order)] = initial_system_noise_cov
+	Paug[(system_oder + system_noise_order):total_order, (system_oder + system_noise_order):total_order] = initial_meas_noise_cov
+
+	c = np.sqrt(total_order + lam)
+
+	L = c*np.linalg.cholesky(Paug)
 	

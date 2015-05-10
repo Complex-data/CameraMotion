@@ -1,12 +1,12 @@
 function [Zmean, Zcov] = ...
     unscented_transform_better_sigmas(Xmean, Xcov, h)
-    % Calculates the unscented transform with a simple choice of
+    % Calculates the unscented transform with a better choice of
     % sigma points
     % Xmean - mean vector of the measurements
     % Xcov - covariance matrix of the measurements
     % h - function used to transform the measurements
     
-    w0 = 1/5.3;
+    w0 = 1/5.3; % Scaling parameter for the first sigma point
 
     Nx = length(Xcov); % Dimension of the measurements
     

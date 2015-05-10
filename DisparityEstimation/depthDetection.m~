@@ -1,0 +1,53 @@
+clc, clear
+
+index = 1;
+
+IL = imread(['../ImageData/LeftData/data/', indexToImageName(index)]);
+IR = imread(['../ImageData/RightData/data/', indexToImageName(index)]);
+
+frameLeftGray = IL;
+frameRightGray = IR;
+
+method = 'SemiGlobal';  % 'SemiGlobal' (default) | 'BlockMatching'
+dispRange = [0, 64];    % [0, 64] (default)
+blockSize = 15;         % 15 (default) | odd integer
+contrastThresh = 0.5;   % 0.5 (default) | scalar
+uniqueThresh = 15;      % 15 (default) | non-negative integer
+distThresh = [];        % [] (disabled)(default) | non-negative integer
+textThresh = 0.0002;    % 0.0002 (default) | scalar value
+
+disparityMap = disparity(frameLeftGray, frameRightGray, ...
+                         'Method', method, ...
+                         'DisparityRange', dispRange, ...
+                         'BlockSize', blockSize, ...
+                         'ContrastThreshold', contrastThresh, ...
+                         'UniquenessThreshold', uni, ...
+                         'DistanceThreshold', , ...
+                         'TextureThreshold', );
+
+h = fspecial('gaussian');
+
+% 'average'
+% 'disk'
+% 'gaussian'
+% 'laplacian'
+% 'log'
+% 'motion'
+% 'prewitt'
+% 'sobel'
+
+disparityMap2 = conv2(disparityMap, h);
+
+figure(1);
+clf
+imshow(disparityMap, [0, 64]);
+title('Disparity Map');
+colormap jet
+colorbar
+
+figure(2);
+clf
+imshow(disparityMap2, [0, 64]);
+title('Disparity Map');
+colormap jet
+colorbar

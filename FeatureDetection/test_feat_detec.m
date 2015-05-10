@@ -3,24 +3,26 @@ clc, clear
 I1 = imread('../ImageData/LeftData/data/0000000000.png');
 I2 = imread('../ImageData/LeftData/data/0000000001.png');
 
-mQ = 0.01;
-filt = 3;
-ROI = [1 1 size(I1,2) size(I1,1)];
+[im_cols, im_rows] = size(I1);
 
-[x, y, u, v, mp1, mp2] = returnHarrisVectors(I1, I2, mQ, filt, ROI);
+mQ = 0.001;
+filt = 3;
+
+width = im_rows;
+height = 0.5*im_cols;
+
+[x, y, u, v, mp1, mp2] = returnHarrisVectors(I1, I2, mQ, filt, ...
+    [1, im_cols - height, im_rows, height]);
 
 figure;
-% imshow(I1);
 hold on;
-% plot(mp1.Location(:, 1), mp1.Location(:, 2), 'or');
-% plot(mp2.Location(:, 1), mp2.Location(:, 2), '+g');
 
 % The whole image is flipped. Need to flip the y-axis
 x1 = mp1.Location(:, 1);
-y1 = size(I1, 1) - mp1.Location(:, 2);
+y1 = im_cols - mp1.Location(:, 2);
 
 x2 = mp2.Location(:, 1);
-y2 = size(I1, 1) - mp2.Location(:, 2);
+y2 = im_cols - mp2.Location(:, 2);
 
 conn = [x2, y2] - [x1, y1];
 
@@ -48,11 +50,26 @@ for i = 1:mp1.Count
     plot([x1(i), x2(i)], [y1(i), y2(i)], col);
 end
 
-
-% % Normalize arrows
-% uv_norm = sqrt(u.^2 + v.^2);
-% u = u ./ uv_norm;
-% v = v ./ uv_norm;
-% quiver(x, y, -u, v);
-
-% figure; showMatchedFeatures(I1, I2, mp1, mp2);
+% Calculate bounding boxes
+% We need boxes round around each group of quadrant vectors
+pos = [x1, y1; x2, y2];
+for i = 1:4
+    vecs = pos([quad == i, quad == i], :);
+    xl = min(vecs(:, 1));
+    xr = max(vecs(:, 1));
+    yb = min(vecs(:, 2));
+    yt = max(vecs(:, 2));
+    
+    col = '';
+    if i == 1
+        col = 'r';
+    elseif i == 2
+        col = 'g';
+    elseif i == 3
+        col = 'k';
+    elseif i == 4
+        col = 'y';
+    end
+    
+    plot([xl, xr, xr, xl, xl], [yt, yt, yb, yb, yt], col);
+end

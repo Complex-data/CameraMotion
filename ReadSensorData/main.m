@@ -1,10 +1,10 @@
 clc, clear
 
-data = load('../SensorData/timestamps.txt');
+t = readTimeStamps();
+wx = retreiveSensorData('wx');
+wy = retreiveSensorData('wy');
+wz = retreiveSensorData('wz');
 
+yaw = retreiveSensorData('yaw');
 
-% lat = retreiveSensorData('lat');
-% lon = retreiveSensorData('lon');
-% 
-% 
-% plot(lat, lon)
+plot(t, yaw)

@@ -5,6 +5,8 @@ index = 1;
 IL = imread(['../ImageData/LeftData/data/', indexToImageName(index)]);
 IR = imread(['../ImageData/RightData/data/', indexToImageName(index)]);
 
+
+
 frameLeftGray = IL;
 frameRightGray = IR;
 

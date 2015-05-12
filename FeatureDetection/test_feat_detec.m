@@ -9,7 +9,7 @@ mQ = 0.001;
 filt = 3;
 
 width = im_rows;
-height = 0.5*im_cols;
+height = floor(0.5*im_cols);
 
 [x, y, u, v, mp1, mp2] = returnHarrisVectors(I1, I2, mQ, filt, ...
     [1, im_cols - height, im_rows, height]);

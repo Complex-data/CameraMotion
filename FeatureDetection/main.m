@@ -1,7 +1,10 @@
 clc, clear
 
-I1 = imread('../ImageData/LeftData/data/0000000000.png');
-I2 = imread('../ImageData/LeftData/data/0000000001.png');
+index = 1;
+
+I1 = imread(['../ImageData/LeftData/', indexToImageName(index)]);
+I2 = imread(['../ImageData/LeftData/', indexToImageName(index+1)]);
+
 
 mQ = 0.0001;
 filt = 3;

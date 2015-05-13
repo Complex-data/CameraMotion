@@ -2,8 +2,8 @@ clc, clear
 
 index = 1;
 
-IL = imread(['../ImageData/LeftData/data/', indexToImageName(index)]);
-IR = imread(['../ImageData/RightData/data/', indexToImageName(index)]);
+IL = imread(['../ImageData/LeftData/', indexToImageName(index)]);
+IR = imread(['../ImageData/RightData/', indexToImageName(index)]);
 
 
 

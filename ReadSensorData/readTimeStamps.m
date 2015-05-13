@@ -1,9 +1,9 @@
 function t = readTimeStamps()
 
 
-data = load('../SensorData/timestamps.txt');
+data = load('../ImageData/times.txt');
 
 
-t = (data - data(1)).';
+t = data;
 
 end

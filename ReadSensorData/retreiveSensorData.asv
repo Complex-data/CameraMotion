@@ -1,0 +1,11 @@
+function data = retreiveSensorData(dataType)
+%% Retreives ground truth data, 4 and 12 is position
+data = zeros(1,77);
+
+tempData = load('..\SensorData\uth\poses\00.txt');
+
+data = tempData(:, dataType);
+
+
+
+end

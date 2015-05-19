@@ -1,9 +1,5 @@
 function t = readTimeStamps()
+    data = load('../ImageData/times.txt');
 
-
-data = load('../ImageData/times.txt');
-
-
-t = data;
-
+    t = data;
 end

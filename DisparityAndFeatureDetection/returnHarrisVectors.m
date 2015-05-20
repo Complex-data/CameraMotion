@@ -1,4 +1,4 @@
-function [x, y, u, v, mp1, mp2] = returnHarrisVectors(im1, im2, mQ, filt, ROI)
+function [x1, y1, x2, y2, u, v, mp1, mp2] = returnHarrisVectors(im1, im2, mQ, filt, ROI)
 
 
 % minQ = 0.0001;
@@ -41,7 +41,5 @@ y2 = mp2.Location(:, 2);
 u = x2-x1;
 v = y2-y1;
 
-x = x1;
-y = y1;
 
 end

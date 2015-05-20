@@ -31,7 +31,7 @@ disparityMap = disparity(frameLeftGray, frameRightGray, ...
 
 
 
-disparityMap(:, 1:128) = [];
+disparityMap(:, 1:128) = 0;
 
 figure(1);
 clf
@@ -59,15 +59,16 @@ colormap jet
 
 %% Feature detection
 
-
+% index = 105;
 I1 = imread(['../ImageData/LeftData/', indexToImageName(index)]);
 I2 = imread(['../ImageData/LeftData/', indexToImageName(index+1)]);
 
 
 mQ = 0.0001;
 filt = 3;
-ROI = [1 200 750 176];
+% ROI = [1 200 750 176];
 % ROI = [1 1 size(I1,2) size(I1,1)];
+ROI = [128 1 size(I1,2)-128*2 size(I1,1)];
 % ROI = [1 round(size(I1,2)/2) size(I1,2) size(I1,1)];
 tic
 [x, y, u, v, mp1, mp2] = returnHarrisVectors(I1, I2, mQ, filt, ROI);
@@ -77,31 +78,24 @@ toc
 figure(1);
 showMatchedFeatures(I1, I2, mp1, mp2);
 
-%%  Scale matched vectors with disparity
+%% 
 
-for k = 1:length(u)
+[X, Y, Z] = getXYZ(dispMap, x, y, u, v);
+
+z = zeros(1, length(x))';
+quiver3(x, y, z, X, Y, Z)
+
+%%
+theta = 0;
+delta_d = 0;
+
+for k = 1:length(X)
     
-   u2(k) = u(k)*dispMap(round(y(k)), round(x(k))); 
-   v2(k) = v(k)*dispMap(round(y(k)), round(x(k))); 
+    theta = theta + u(k);
+    delta_d = delta_d + Z(k);
 end
 
-clf
-hold on
-quiver(x,y, -u2', -v2');
-quiver(x,y, -u, -v);
-
-m2 = mp2;
-
-% x1 = mp1.Location(:, 1);
-% y1 = mp1.Location(:, 2);
-% 
-% x2 = mp2.Location(:, 1);
-% y2 = mp2.Location(:, 2);
-%%
-
-m2.Location(:,1) = m2.Location(:,1); %x+u2';
-m2.Location(:,2) = m2.Location(:,1); %y+v2';
-
-showMatchedFeatures(I1, I2, mp1, m2);
+delta_d/length(Z)
+theta/length(X)
 
 

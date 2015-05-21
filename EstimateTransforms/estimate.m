@@ -1,4 +1,4 @@
-clc; clear all; close all;
+clc; clear; close all;
 
 %% Data setup
 
@@ -72,62 +72,65 @@ for m = 1:M
         [f1c, vp1c] = extractFeatures(I1c, p1c);
         [f2c, vp2c] = extractFeatures(I2c, p2c);
         
-        nfeat = f1c.NumFeatures;
-        ncircfeat = 0;
-        circfeat_ind = zeros(nfeat, 4);
-        for k = 1:nfeat
-            ind = matchFeatures(binaryFeatures(f1c.Features(k, :)), f1p, ...
-                                'Method', 'Exhaustive', ... def 'Exhaustive'
-                                'MatchThreshold', 10.0, ... def 10.0 binFeat, 1.0 nonbinFeat
-                                'MaxRatio', 0.6, ... def 0.6
-                                'Unique', true);% def false
-                            
-            if ~isempty(ind)
-                % We found the feature also in the previous left picture
-                % Now look in the previous right image
-                ind2 = matchFeatures(binaryFeatures(f1p.Features(ind(2), :)), f2p, ...                       
-                                'Method', 'Exhaustive', ... def 'Exhaustive'
-                                'MatchThreshold', 10.0, ... def 10.0 binFeat, 1.0 nonbinFeat
-                                'MaxRatio', 0.6, ... def 0.6
-                                'Unique', true);% def false
-                            
-                if ~isempty(ind2)
-                    % Whoohooo, it's even in the previous right image
-                    % Check the current right image
-                    ind3 = matchFeatures(binaryFeatures(f2p.Features(ind2(2), :)), f2c, ...                       
-                                'Method', 'Exhaustive', ... def 'Exhaustive'
-                                'MatchThreshold', 10.0, ... def 10.0 binFeat, 1.0 nonbinFeat
-                                'MaxRatio', 0.6, ... def 0.6
-                                'Unique', true);% def false
-                            
-                    if ~isempty(ind3)
-                        % Perfect we also found the feature in the current
-                        % right picture. Now see if we can find it again in
-                        % the current left picture and hope that it is the
-                        % same as before
-                        ind4 = matchFeatures(binaryFeatures(f2c.Features(ind3(2), :)), f1c, ...                       
-                                'Method', 'Exhaustive', ... def 'Exhaustive'
-                                'MatchThreshold', 10.0, ... def 10.0 binFeat, 1.0 nonbinFeat
-                                'MaxRatio', 0.6, ... def 0.6
-                                'Unique', true);% def false
-                            
-                        if ~isempty(ind4) && ind4(2) == k
-                            % Fuck yeah :) we found a circular feature!
-                            ncircfeat = ncircfeat + 1;
-                            circfeat_ind(ncircfeat, :) = ...
-                                [k, ind(2), ind2(2), ind3(2)];
-                        end
-                    end
-                end
-            end            
+        thr = 40; % def 10
+        
+        tic
+        % Do circular feature matching
+        ind1cp = matchFeatures(f1c, f1p, 'MatchThreshold', thr, 'Unique', true);
+        ind12p = ...
+            matchFeatures(binaryFeatures(f1p.Features(ind1cp(:, 2), :)), ...
+                                f2p, 'MatchThreshold', thr, 'Unique', true);
+        ind2pc = ...
+            matchFeatures(binaryFeatures(f2p.Features(ind12p(:, 2), :)), ...
+                                f2c, 'MatchThreshold', thr, 'Unique', true);
+        ind21c = ...
+            matchFeatures(binaryFeatures(f2c.Features(ind2pc(:, 2), :)), ...
+                                f1c, 'MatchThreshold', thr, 'Unique', true);
+        toc 
+        % Check if we found any circular matches at all
+        if isempty(ind21c)
+            continue;
         end
         
-        uv1c = [ uv1c; vp1c.Location(circfeat_ind(1:ncircfeat, 1), :) ];
-        uv1p = [ uv1p; vp1p.Location(circfeat_ind(1:ncircfeat, 2), :) ];
-        uv2p = [ uv2p; vp2p.Location(circfeat_ind(1:ncircfeat, 3), :) ];
-        uv2c = [ uv2c; vp2c.Location(circfeat_ind(1:ncircfeat, 4), :) ];
+        tic
+        indCircFeat = zeros(length(ind21c), 4);
+        nCircFeat = 0;
+        
+        for k = 1:length(ind21c)
+            indEnd = ind21c(k, 2);
+            indStart = ind1cp(ind12p(ind2pc(ind21c(k, 1), 1), 1), 1);
+            
+            if indEnd == indStart
+                ind1c = indStart;
+                ind1p = ind1cp(ind12p(ind2pc(ind21c(k, 1), 1), 1), 2);
+                ind2p = ind12p(ind2pc(ind21c(k, 1), 1), 2);
+                ind2c = ind2pc(ind21c(k, 1), 2);
+                
+                nCircFeat = nCircFeat + 1;
+                indCircFeat(nCircFeat, :) = [ind1c, ind1p, ind2p, ind2c];
+            end                
+        end
+        toc
+        
+        uv1c = [ uv1c; vp1c.Location(indCircFeat(1:nCircFeat, 1), :) ];
+        uv1p = [ uv1p; vp1p.Location(indCircFeat(1:nCircFeat, 2), :) ];
+        uv2p = [ uv2p; vp2p.Location(indCircFeat(1:nCircFeat, 3), :) ];
+        uv2c = [ uv2c; vp2c.Location(indCircFeat(1:nCircFeat, 4), :) ];
     end
 end
+
+%% Estimate Motion
+du = uv1p(:, 1) - uv1c(:, 1);
+dv = uv1p(:, 2) - uv1c(:, 2);
+
+% Get new rotation
+drot = mean(du);
+
+% Get rid of the rotation
+du = du - drot;
+
+% Get the velocity
+velo = mean(sqrt(du.^2 + dv.^2));
 
 %% Plot
 nmatched = length(uv1p);

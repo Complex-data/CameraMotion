@@ -2,12 +2,6 @@ clc; clear all; close all;
 
 %% Parameter setup
 
-% Camera parameters
-param.f     = 645.2;
-param.cu    = 635.9;
-param.cv    = 194.1;
-param.base  = 0.571;
-
 % The total rotation of the vehicle
 rot = zeros(1034, 1);
 
@@ -22,12 +16,12 @@ y_prev = 0;
 % Parameters for the UKF
 % Inital covariances - should be relatively precise
 Xcov = (1e-6)*eye(6);
-sn_cov = 0.0001*eye(2);
+sn_cov = 0.1*eye(2);
 mn_cov = eye(2);
 
 % Output vectors and starting vector
 Xfilt = zeros(6, 1034);
-Xfilt(:, 1) = [0;0;0;0;0;0];
+Xfilt(:, 1) = [0;0;0;8;0;0];
 
 %% Read match data
 load circular_matches.mat

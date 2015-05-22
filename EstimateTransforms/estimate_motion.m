@@ -113,7 +113,4 @@ for i = 1:1033
     % Save the current position so we can extend the plot next time
     x_prev = x;
     y_prev = y;
-    
-    % Pause for a short moment
-%     pause(0.01)
 end

@@ -51,7 +51,11 @@ for i = 1:1033
     if abs(drot) > 15
         rot(i + 1) = rot(i) + drot;
     else
-        rot(i + 1) = rot(i);
+        bias = randi(2);
+        if bias == 2
+            bias = -1;
+        end
+        rot(i + 1) = rot(i) + bias*drot;
     end
     
     % Get the angle of the rotation
@@ -84,5 +88,5 @@ for i = 1:1033
     y_prev = y;
     
     % Pause for a short moment
-    pause(0.01)
+%     pause(0.01)
 end

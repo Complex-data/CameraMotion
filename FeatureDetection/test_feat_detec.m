@@ -1,7 +1,7 @@
 clc, clear
 
-I1 = imread('../ImageData/LeftData/data/0000000000.png');
-I2 = imread('../ImageData/LeftData/data/0000000001.png');
+I1 = imread('../ImageData/LeftData/000000.png');
+I2 = imread('../ImageData/LeftData/000001.png');
 
 [im_cols, im_rows] = size(I1);
 

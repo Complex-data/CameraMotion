@@ -30,15 +30,18 @@ filtS = 3;        % FilterSize, def 5
 col_step = floor(size(I1p, 2) / M);
 row_step = floor(size(I1p, 1) / N);
 
-% These variables will store the coordinates of the features I find
-% Left image previous
-uv1p = [];
-% Right image previous
-uv2p = [];
+% These variables will store the corner points of the matched features
 % Left image current
-uv1c = [];
+m1c = cornerPoints(zeros(0, 2));
+
+% Left image previous
+m1p = cornerPoints(zeros(0, 2));
+
+% Right image previous
+m2p = cornerPoints(zeros(0, 2));
+
 % Right image current
-uv2c = [];
+m2c = cornerPoints(zeros(0, 2));
 
 %% Gritty fucking details...
 % Since we know that the camera does not move too sudden it is enough to
@@ -72,7 +75,7 @@ for m = 1:M
         [f1c, vp1c] = extractFeatures(I1c, p1c);
         [f2c, vp2c] = extractFeatures(I2c, p2c);
         
-        thr = 40; % def 10
+        thr = 50; % def 10
         
         tic
         % Do circular feature matching
@@ -111,19 +114,26 @@ for m = 1:M
             end                
         end
         toc
-        
-        uv1c = [ uv1c; vp1c.Location(indCircFeat(1:nCircFeat, 1), :) ];
-        uv1p = [ uv1p; vp1p.Location(indCircFeat(1:nCircFeat, 2), :) ];
-        uv2p = [ uv2p; vp2p.Location(indCircFeat(1:nCircFeat, 3), :) ];
-        uv2c = [ uv2c; vp2c.Location(indCircFeat(1:nCircFeat, 4), :) ];
+
+        m1c = [ m1c; vp1c(indCircFeat(1:nCircFeat, 1)) ];
+        m1p = [ m1p; vp1p(indCircFeat(1:nCircFeat, 2)) ];
+        m2p = [ m2p; vp2p(indCircFeat(1:nCircFeat, 3)) ];
+        m2c = [ m2c; vp2c(indCircFeat(1:nCircFeat, 4)) ];
     end
 end
 
 %% Estimate Motion
+% Extract coordinates
+uv1c = m1c.Location;
+uv1p = m1p.Location;
+uv2p = m2p.Location;
+uv2c = m2c.Location;
+
+% Calculate transition vectors
 du = uv1p(:, 1) - uv1c(:, 1);
 dv = uv1p(:, 2) - uv1c(:, 2);
 
-% Get new rotation
+% Get change in rotation
 drot = mean(du);
 
 % Get rid of the rotation
@@ -135,23 +145,25 @@ velo = mean(sqrt(du.^2 + dv.^2));
 %% Plot
 nmatched = length(uv1p);
 
-figure;
-imshowpair(I1p, I1c, 'falsecolor');
-hold on;
-plot(uv1p(:, 1), uv1p(:, 2), 'og')
-plot(uv1c(:, 1), uv1c(:, 2), '+r')
-for k = 1:nmatched
-    plot([uv1p(k, 1), uv1c(k, 1)], [uv1p(k, 2), uv1c(k, 2)], 'y')
-end
+figure('Name', 'Left Images');
+% imshowpair(I1p, I1c, 'falsecolor');
+% hold on;
+% plot(uv1p(:, 1), uv1p(:, 2), 'og')
+% plot(uv1c(:, 1), uv1c(:, 2), '+r')
+% for k = 1:nmatched
+%     plot([uv1p(k, 1), uv1c(k, 1)], [uv1p(k, 2), uv1c(k, 2)], 'y')
+% end
+showMatchedFeatures(I1p, I1c, m1p, m1c);
 
-figure;
-imshowpair(I2p, I2c, 'falsecolor');
-hold on;
-plot(uv2p(:, 1), uv2p(:, 2), 'og')
-plot(uv2c(:, 1), uv2c(:, 2), '+r')
-for k = 1:nmatched
-    plot([uv2p(k, 1), uv2c(k, 1)], [uv2p(k, 2), uv2c(k, 2)], 'y')
-end
+figure('Name', 'Right Images');
+% imshowpair(I2p, I2c, 'falsecolor');
+% hold on;
+% plot(uv2p(:, 1), uv2p(:, 2), 'og')
+% plot(uv2c(:, 1), uv2c(:, 2), '+r')
+% for k = 1:nmatched
+%     plot([uv2p(k, 1), uv2c(k, 1)], [uv2p(k, 2), uv2c(k, 2)], 'y')
+% end
+showMatchedFeatures(I2p, I2c, m2p, m2c);
 
 %% Process the matched features
 % Convert the matched points to a 3D point cloud

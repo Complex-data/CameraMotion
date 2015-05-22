@@ -19,6 +19,15 @@ y = 0;
 x_prev = 0;
 y_prev = 0;
 
+% Parameters for the UKF
+% Inital covariances - should be relatively precise
+Xcov = (1e-6)*eye(6);
+sn_cov = 0.0001*eye(2);
+mn_cov = eye(2);
+
+% Output vectors and starting vector
+Xfilt = zeros(6, 1034);
+Xfilt(:, 1) = [0;0;0;0;0;0];
 
 %% Read match data
 load circular_matches.mat
@@ -48,6 +57,13 @@ for i = 1:1033
 
     % Get the velocity
     velo = mean(sqrt(du.^2 + dv.^2));
+    
+    % Our features are not uniformly distributed over the whole image
+    % If we have large rotations this is no problem, most features will
+    % point in the same direction. But if we only have small rotations
+    % these might be biased to the side of the image on which we have more
+    % features. To compensate for this these features get randomly added or
+    % substracted, no matter what their original sign was.
     if abs(drot) > 15
         rot(i + 1) = rot(i) + drot;
     else
@@ -59,27 +75,38 @@ for i = 1:1033
     end
     
     % Get the angle of the rotation
-    theta = - rot(i + 1) * pi / 2500;
+    theta = -rot(i + 1) * pi / 2500;
     % Time step
     h = 0.01;
     
-    % New position
+    % New position - simple solution
     x = x + velo * h * cos(theta);
     y = y + velo * h * sin(theta);
     
+    % Apply the UKF to incorporate our new measurement    
+    [Xfilt(:, i + 1), Xcov] = unscented_kalman_filter([theta;velo], ...
+    Xfilt(:, i), Xcov, sn_cov, mn_cov, ...
+    @systemFunc, @measFunc);
+    
     % Plot the position of the vehicle
     figure(1);
-    subplot(3, 1, 1);
+    subplot(4, 1, 1);
     hold on
     plot([x_prev, x], [y_prev, y], '-r')
     plot(x, y, 'ro')
+    plot([Xfilt(1, i), Xfilt(1, i + 1)], [Xfilt(2, i), Xfilt(2, i + 1)], '-b')
+    plot(Xfilt(1, i + 1), Xfilt(2, i + 1), 'sb')
     
-    subplot(3, 1, 2);
+    subplot(4, 1, 2);
     hold on
-    plot(i, rot(i + 1), 'xr');
+    plot(i, rot(i + 1), 'xg');
+    
+    subplot(4, 1, 3);
+    hold on
+    plot(i, velo, 'xb');
     
     % Plot the image with the matched features
-    subplot(3, 1, 3);
+    subplot(4, 1, 4);
     hold off
     showMatchedFeatures(I1p, I1c, m1p, m1c);
     

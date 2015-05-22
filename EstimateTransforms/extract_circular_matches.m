@@ -20,6 +20,7 @@ circular_matches.m1p = cell(1034, 1);
 circular_matches.m2p = cell(1034, 1);
 circular_matches.m2c = cell(1034, 1);
 
+tic 
 for i = 1:1033
     I1p = imread(['..\ImageData\LeftData\', num2str(i - 1, '%.6d'), '.png']);
     I2p = imread(['..\ImageData\RightData\', num2str(i - 1, '%.6d'), '.png']);
@@ -128,5 +129,6 @@ for i = 1:1033
     circular_matches.m2p{i} = m2p;
     circular_matches.m2c{i} = m2c;
 end
+toc
 
 save circular_matches

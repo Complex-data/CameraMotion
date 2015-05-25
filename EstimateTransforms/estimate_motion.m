@@ -16,8 +16,8 @@ y_prev = 0;
 % Parameters for the UKF
 % Inital covariances - should be relatively precise
 Xcov = (1e-6)*eye(6);
-sn_cov = 0.1*eye(2);
-mn_cov = eye(2);
+sn_cov = 0.01*eye(2);
+mn_cov = [5, 0; 0, 10];
 
 % Output vectors and starting vector
 Xfilt = zeros(6, 1034);

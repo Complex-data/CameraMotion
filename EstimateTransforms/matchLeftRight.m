@@ -92,6 +92,6 @@ function [ind, met] = matchLeftRight(f1, f2, vp1, vp2, M, thr)
         met = [];
     else
         ind = ind(1:num, :);
-        met = met(1:num, :);
+        met = met(1:num);
     end
 end

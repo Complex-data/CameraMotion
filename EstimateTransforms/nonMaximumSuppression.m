@@ -7,7 +7,7 @@ function ext = nonMaximumSuppression(I1, I2, n, thr)
     
     % n = 2; % Minimum distance between maxima / minima
     
-    margin = 6;
+    margin = 12;
 
     % Preallocate for maximum number of extrema
     ext = zeros(floor(width*height / (2*n + 1)^2), 4, 'int16');

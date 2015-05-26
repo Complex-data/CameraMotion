@@ -36,7 +36,7 @@ function ind = matchLeftRight(f1, f2, vp1, vp2, M, thr)
     l = 1;    
     for k = 1:s1
         lowest_sad = thr;
-        increas = true;
+        increase = true;
         r1 = vp1(k, 2);
         % As long as we are too low it is not interesting. We are matching
         % left right, so the features should be epipolar. Give it a
@@ -54,14 +54,14 @@ function ind = matchLeftRight(f1, f2, vp1, vp2, M, thr)
             if abs(vp1(k, 1) - vp2(l, 1)) <= M
                 % Let's do the feature matching
                 temp_sad = sum(abs(f1(k, :) - f2(l, :)));
-                if temp_sad < lowest_sad
+                if temp_sad < lowest_sad 
                     % We found a match
                     lowest_sad = temp_sad;
                     
                     % Is this the first time we come here for this k?
-                    if increas == true
+                    if increase == true
                         num = num + 1;
-                        increas = false;
+                        increase = false;
                     end
                     
                     % Did we swap f1 and f2?

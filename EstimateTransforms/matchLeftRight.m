@@ -1,4 +1,4 @@
-function ind = matchLeftRight(f1, f2, vp1, vp2, M, thr)
+function [ind, met] = matchLeftRight(f1, f2, vp1, vp2, M, thr)
     % Assume that there are fewer features in f1. If this is not the case
     % than swap their roles
     s1 = length(f1);
@@ -31,6 +31,7 @@ function ind = matchLeftRight(f1, f2, vp1, vp2, M, thr)
     f2 = f2(i2_rows, :);
     
     ind = zeros(s1, 2, 'uint16');
+    met = zeros(s1, 1);
     num = 0;
     
     l = 1;    
@@ -70,6 +71,9 @@ function ind = matchLeftRight(f1, f2, vp1, vp2, M, thr)
                     else
                         ind(num, :) = [i1_rows(k), i2_rows(l)];
                     end
+                    
+                    % Save the metric
+                    met(num) = lowest_sad;
                 end
             end
             
@@ -85,7 +89,9 @@ function ind = matchLeftRight(f1, f2, vp1, vp2, M, thr)
     % Resize ind
     if num == 0
         ind = [];
+        met = [];
     else
         ind = ind(1:num, :);
+        met = met(1:num, :);
     end
 end

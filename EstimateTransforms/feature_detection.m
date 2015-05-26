@@ -21,29 +21,46 @@ display(['Right image: ELAS features found and extracted in ', ...
 
 % Try out my own algorithm for left right matching
 tic
-ind = matchLeftRight(f1c, f2c, vp1c, vp2c, 30, 50);
+[ind, met] = matchLeftRight(f1c, f2c, vp1c, vp2c, 50, 800);
 display(['Features matched with my own implementation in ', ...
     num2str(toc, '%3.2f'), ' s.']);
 
 % Do a sanity check. For all matched features the u position in the right
 % image should be less or equal to the u position in the left image
 ind2 = zeros(size(ind), 'uint16');
+met2 = zeros(size(met));
 num = 0;
 for k = 1:length(ind)
     if vp1c(ind(k, 1), 1) >= vp2c(ind(k, 2), 1)
         num = num + 1;
         ind2(num, :) = ind(k, :);
+        met2(num) = met(k);
     end
 end
 ind2 = ind2(1:num, :);
+met2 = met2(1:num);
+
+% [~, str_ind] = sort(met2);
+% % Choose the 100 strongest features
+% ind2 = ind2(str_ind(1:500), :);
 
 %% Plotting
+% figure(1);
+% imshowpair(I1c, I2c, 'montage');
+% hold on;
+% for k = 1:length(ind2)
+%     plot([vp1c(ind2(k, 1), 1), width + vp2c(ind2(k, 2), 1)], ...
+%          [vp1c(ind2(k, 1), 2), vp2c(ind2(k, 2), 2)], '-y');
+%     plot(vp1c(ind2(k, 1), 1), vp1c(ind2(k, 1), 2), 'or');
+%     plot(width + vp2c(ind2(k, 2), 1), vp2c(ind2(k, 2), 2), 'xg');
+% end
+
 figure(1);
-imshowpair(I1c, I2c, 'montage');
+imshowpair(I1c, I2c);
 hold on;
 for k = 1:length(ind2)
-    plot([vp1c(ind2(k, 1), 1), width + vp2c(ind2(k, 2), 1)], ...
+    plot([vp1c(ind2(k, 1), 1), vp2c(ind2(k, 2), 1)], ...
          [vp1c(ind2(k, 1), 2), vp2c(ind2(k, 2), 2)], '-y');
     plot(vp1c(ind2(k, 1), 1), vp1c(ind2(k, 1), 2), 'or');
-    plot(width + vp2c(ind2(k, 2), 1), vp2c(ind2(k, 2), 2), 'xg');
+    plot(vp2c(ind2(k, 2), 1), vp2c(ind2(k, 2), 2), 'xg');
 end

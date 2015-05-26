@@ -19,8 +19,6 @@ function [features, ext] = findAndExtractELASFeatures(I, n, thr)
     sobel_max = max(max(max(I_du)), max(max(I_dv)));
     I_du = uint8(I_du * (255 / sobel_max));
     I_dv = uint8(I_dv * (255 / sobel_max));
-%     I_du = uint8(I_du * (255 / max(max(I_du))));
-%     I_dv = uint8(I_dv * (255 / max(max(I_dv))));
 
     I_blob = int16(filter2(blob_detector, I));
     I_corner = int16(filter2(corner_detector, I));

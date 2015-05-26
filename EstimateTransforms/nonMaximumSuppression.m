@@ -4,13 +4,11 @@ function ext = nonMaximumSuppression(I1, I2, n, thr)
     % with modification for minima from Andreas Geiger
     width = size(I1, 2);
     height = size(I1, 1);
-    
-    % n = 2; % Minimum distance between maxima / minima
-    
+
     margin = 12;
 
     % Preallocate for maximum number of extrema
-    ext = zeros(floor(width*height / (2*n + 1)^2), 4, 'int16');
+    ext = zeros(floor(width*height / (2*n + 1)^2), 4);
     % Variable to count the number of extrema
     num = 0;
 

@@ -1,4 +1,4 @@
-function [ind, met] = findMatches(f1, f2, vp1, vp2, M, thr)
+function [ind, met] = findMatches(f1, f2, vp1, vp2, M, thr, uniq)
     % Assume that there are fewer features in f1. If this is not the case
     % than swap their roles
     s1 = length(f1);
@@ -30,7 +30,7 @@ function [ind, met] = findMatches(f1, f2, vp1, vp2, M, thr)
     vp2 = vp2(i2_rows, :);
     f2 = f2(i2_rows, :);
     
-    ind = zeros(s1, 2, 'uint16');
+    ind = zeros(s1, 2);
     met = zeros(s1, 1);
     num = 0;
     
@@ -110,6 +110,19 @@ function [ind, met] = findMatches(f1, f2, vp1, vp2, M, thr)
         met = [];
     else
         ind = ind(1:num, :);
-        met = met(1:num);
+        met = met(1:num, :);
+    end
+    
+    % If it is wished for ensure that only unique matches show up
+    if uniq
+        if swap
+            col = 1;
+        else
+            col = 2;
+        end
+        
+        [~, ia, ~] = unique(ind(:, col));
+        ind = ind(ia, :);
+        met = met(ia, :);
     end
 end

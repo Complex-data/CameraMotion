@@ -43,6 +43,8 @@ for i = 1:1033
 
     % Get the velocity
     velo = mean(sqrt(du.^2 + dv.^2));
+    % % ELAS overestimates the speed. Use this line instead
+    % velo = mean(sqrt(du.^2 + dv.^2))*0.6;
     
     % Our features are not uniformly distributed over the whole image
     % If we have large rotations this is no problem, most features will
